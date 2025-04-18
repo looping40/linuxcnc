@@ -1,0 +1,51 @@
+# Check for GCC version >= 4.7.0 (required for some C++11 features)
+GCC_GTEQ_470 := $(shell $(CC) --version | head -n1 | grep gcc >/dev/null && (expr `($(CC) -dumpfullversion 2>/dev/null || $(CC) -dumpversion) | awk -F '.' '{print $$1*10000+$$2*100+$$3}'` \>= 40700 || true) || echo 1)
+
+# Proceed only if GCC is new enough and libusb-1.0 development files are found (checked by configure script)
+ifeq "$(GCC_GTEQ_470)" "1"
+ifdef HAVE_LIBUSB10
+
+# Define dependencies, source files, flags, and libraries for the openpendant component
+OPENPENDANT_LIB_DEPENDENCIES = ../lib/liblinuxcnchal.so.0 # Depends on the main LinuxCNC HAL library
+
+# List your source files here. Start with the main file.
+# Add other .cc files (like hal.cc, usb.cc) as you create them.
+OPENPENDANT_SRC = hal/user_comps/openpendant/hal.cc \
+                  hal/user_comps/openpendant/usb.cc \
+                  hal/user_comps/openpendant/pendant-types.cc \
+                  hal/user_comps/openpendant/pendant.cc \
+                  hal/user_comps/openpendant/openpendant.cc \
+                  hal/user_comps/openpendant/main.cc # Or whatever your main file is called
+
+# Define compile flags
+OPENPENDANT_DEBUG = -g -funwind-tables # Include debugging symbols
+# Add C++ standard flag (e.g., -std=c++11 or -std=c++14) if needed
+OPENPENDANT_CFLAGS += $(LIBUSB10_CFLAGS) $(OPENPENDANT_DEBUG) -Wall -std=c++11
+
+# Define libraries to link against
+OPENPENDANT_LIBS = -lm $(LIBUSB10_LIBS) # Link math library and libusb-1.0
+
+# Apply the specific CFLAGS to the object files derived from OPENPENDANT_SRC
+$(call TOOBJSDEPS, $(OPENPENDANT_SRC)) : EXTRAFLAGS += $(OPENPENDANT_CFLAGS)
+
+# Add the source files to the global list of user sources
+USERSRCS += $(OPENPENDANT_SRC)
+
+# Define the rule to build the final executable ../bin/openpendant
+# The target name includes .d to handle dependency generation correctly
+# Using $@ for the output file and $^ for prerequisites (object files + dependencies)
+../bin/openpendant openpendant.d : $(call TOOBJS, $(OPENPENDANT_SRC)) $(OPENPENDANT_LIB_DEPENDENCIES)
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(OPENPENDANT_LIBS) # Link objects into the final executable
+
+# Add the final executable to the list of build targets
+TARGETS += ../bin/openpendant
+
+else # HAVE_LIBUSB10 is not defined
+$(info libusb-1.0 development package not found: skipping hal/user_comps/openpendant)
+endif # HAVE_LIBUSB10
+
+else # GCC version check failed
+$(info Compiler version: "$(shell $(CC) --version | head -n1)" is too old: skipping hal/user_comps/openpendant)
+endif # GCC VERSION CHECK
+
