@@ -570,8 +570,8 @@ private:
     std::map <std::string, size_t> mButtonNameToIdx;
     bool                           mIsSimulationMode{false};
     bool                           mIsInitialized{false};
-    const char* mName{"xhc-whb04b-6"};
-    const char* mComponentPrefix{"whb"};
+    const char* mName{"openpendant"};
+    const char* mComponentPrefix{"openpdt"};
     int          mHalCompId{-1};
     std::ostream mDevNull{nullptr};
     std::ostream* mHalCout{nullptr}; // For verbose output

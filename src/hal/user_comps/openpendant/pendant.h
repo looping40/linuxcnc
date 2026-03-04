@@ -88,6 +88,7 @@ private:
     int16_t  mLastWheelAbs{0};
     uint32_t mLastBtnState{0};
     uint8_t  mCurrentStepIdx{0};
+    uint8_t  mCurrentWheelMode{WHEEL_MODE_OFF};
 
     std::ostream  mDevNull{nullptr};
     std::ostream* mPendantCout;

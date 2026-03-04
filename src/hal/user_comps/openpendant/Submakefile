@@ -1,0 +1,30 @@
+GCC_GTEQ_470 := $(shell $(CC) --version | head -n1 | grep gcc >/dev/null && (expr `($(CC) -dumpfullversion 2>/dev/null || $(CC) -dumpversion) | awk -F '.' '{print $$1*10000+$$2*100+$$3}'` \>= 40700 || true) || echo 1)
+ifeq "$(GCC_GTEQ_470)" "1"
+ifdef HAVE_LIBUSB10
+
+OPENPENDANT_LIB_DEPENDENCIES = ../lib/liblinuxcnchal.so.0
+OPENPENDANT_SRC = hal/user_comps/openpendant/hal.cc \
+                  hal/user_comps/openpendant/usb.cc \
+                  hal/user_comps/openpendant/pendant-types.cc \
+                  hal/user_comps/openpendant/pendant.cc \
+                  hal/user_comps/openpendant/openpendant.cc \
+                  hal/user_comps/openpendant/main.cc
+
+OPENPENDANT_DEBUG = -g -funwind-tables
+OPENPENDANT_CFLAGS += $(LIBUSB10_CFLAGS) $(OPENPENDANT_DEBUG) -Wall
+OPENPENDANT_LIBS = -lm $(LIBUSB10_LIBS)
+
+$(call TOOBJSDEPS, $(OPENPENDANT_SRC)) : EXTRAFLAGS += $(OPENPENDANT_CFLAGS)
+
+USERSRCS += $(OPENPENDANT_SRC)
+../bin/openpendant openpendant.d : $(call TOOBJS, $(OPENPENDANT_SRC)) $(OPENPENDANT_LIB_DEPENDENCIES)
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(OPENPENDANT_LIBS)
+
+TARGETS += ../bin/openpendant
+
+endif # HAVE_LIBUSB10
+
+else
+$(info Compiler version: "$(shell $(CC) --version | head -n1)" is too old: skipping hal/user_comps/openpendant)
+endif # GCC VERSION CHECK

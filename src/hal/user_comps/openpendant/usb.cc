@@ -144,20 +144,19 @@ void Usb::setDoReconnect(bool doReconnect)
 // ----------------------------------------------------------------------
 void Usb::sendDisplayData()
 {
-    if (mIsSimulationMode)
-    {
-        *verboseTxOut << "out   sending " << sizeof(outputPackageData) << "B via interrupt OUT"
-                      << endl;
-    }
+    *verboseTxOut << "out   sending " << sizeof(outputPackageData) << "B via interrupt OUT"
+                  << endl;
 
+    // Send via interrupt OUT endpoint.
+    // outputPackageData starts with report_id=2, which TinyUSB extracts from buffer[0]
+    // to dispatch to the correct _onOutput handler.
     int transferred = 0;
-    // EP1 OUT (0x01) — interrupt transfer for HID OUTPUT report
     int r = libusb_interrupt_transfer(deviceHandle,
-                                       (0x1 | LIBUSB_ENDPOINT_OUT),
-                                       reinterpret_cast<uint8_t*>(&outputPackageData),
-                                       sizeof(outputPackageData),
-                                       &transferred,
-                                       10);
+                                      (0x1 | LIBUSB_ENDPOINT_OUT),  // EP1 OUT
+                                      reinterpret_cast<uint8_t*>(&outputPackageData),
+                                      sizeof(outputPackageData),
+                                      &transferred,
+                                      100);
     if (r < 0)
     {
         std::cerr << "transmission failed (" << libusb_error_name(r)
@@ -240,7 +239,7 @@ void Usb::requestTermination()
 bool Usb::setupAsyncTransfer()
 {
     assert(inTransfer != nullptr);
-    libusb_fill_bulk_transfer(inTransfer, deviceHandle,
+    libusb_fill_interrupt_transfer(inTransfer, deviceHandle,
                               (0x1 | LIBUSB_ENDPOINT_IN),
                               inputPackageBuffer.asBuffer,
                               sizeof(inputPackageBuffer.asBuffer),

@@ -29,7 +29,8 @@ typedef struct __attribute__((packed)) {
     uint16_t spindle_ovr;       // Override broche (0–120 %)
     uint8_t  step_active;       // Index pas actif côté HAL (0–10, table STEP_MULT)
     uint32_t hal_status_bits;   // Voir HAL_BIT_* ci-dessus
-    char     current_tool[14];  // Nom outil ex: "Fraise 6mm\0"
+    uint8_t  wheelMode_active;  // Mode roue accepté par LinuxCNC (WHEEL_MODE_*)
+    char     current_tool[13];  // Nom outil ex: "Fraise 6mm\0"
 } pendant_tx_packet_t;
 // static_assert(sizeof(pendant_tx_packet_t) == 64, "pendant_tx_packet_t must be 64 bytes");
 

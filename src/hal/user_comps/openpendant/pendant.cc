@@ -163,6 +163,7 @@ void Pendant::processEvent(const pendant_rx_packet_t& rx)
             break;
     }
 
+    mCurrentWheelMode = rx.wheel_mode;
     mHandWheel.setMode(counterMode);
     mHandWheel.setEnabled(counterMode != Idx::UNDEFINED);
 
@@ -305,6 +306,9 @@ void Pendant::updateDisplayData()
 
     // Step size echo
     pkt.step_active = mCurrentStepIdx;
+
+    // Wheel mode echo — confirm accepted mode back to pendant
+    pkt.wheelMode_active = mCurrentWheelMode;
 
     // Status bits
     uint32_t bits = 0;
