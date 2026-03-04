@@ -229,11 +229,16 @@ void OpenPendantComponent::process()
 
         mHal.setIsPendantConnected(false);
         *mInitCout << "connection lost, cleaning up" << endl;
+
+        // Cancel pending async IN transfer before closing device
+        mUsb.cancelAsyncTransfer();
+
+        // Process remaining events so cancellation completes
         struct timeval tv;
         tv.tv_sec  = 1;
         tv.tv_usec = 0;
         int r = libusb_handle_events_timeout_completed(getUsbContext(), &tv, nullptr);
-        assert(0 == r);
+        assert((0 == r) || (r == LIBUSB_ERROR_NO_DEVICE));
         r = libusb_release_interface(getUsbDeviceHandle(), 0);
         assert((0 == r) || (r == LIBUSB_ERROR_NO_DEVICE));
         libusb_close(getUsbDeviceHandle());
@@ -245,6 +250,8 @@ void OpenPendantComponent::teardownUsb()
 {
     libusb_exit(getUsbContext());
     mUsb.setContext(nullptr);
+    // Re-allocate transfers for next connection cycle
+    mUsb.reallocTransfers();
 }
 // ----------------------------------------------------------------------
 void OpenPendantComponent::enableVerbosePendant(bool enable)

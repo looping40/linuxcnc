@@ -139,6 +139,8 @@ public:
         hal_float_t* feedOverrideMaxVel{nullptr};
         //! to be connected to \ref halui.feed-override.value
         hal_float_t* feedOverrideValue{nullptr};
+        //! Actual feed rate in mm/min (0 when idle). Connect to motion.feed-mm-per-minute.
+        hal_float_t* feedRateMmPerMinute{nullptr};
 
         //! to be connected to \ref halui.program.is-running
         hal_bit_t* isProgramRunning{nullptr};
@@ -421,6 +423,8 @@ public:
     //! Returns the current Max Velocity value.
     //! \sa Hal::In::feedOverrideMaxVel
     real_t getFeedOverrideMaxVel() const;
+    //! Returns the actual feed rate in mm/min (from motion.feed-mm-per-minute). 0 when idle.
+    real_t getFeedRateMmPerMinute() const;
     //! Returns the current feed override value.
     //! \sa Hal::In::feedOverrideValue
     //! \return the current feed override value v: 0 <= v <= 1
@@ -570,7 +574,7 @@ private:
     std::map <std::string, size_t> mButtonNameToIdx;
     bool                           mIsSimulationMode{false};
     bool                           mIsInitialized{false};
-    const char* mName{"openpendant"};
+    const char* mName{"openpdt"};
     const char* mComponentPrefix{"openpdt"};
     int          mHalCompId{-1};
     std::ostream mDevNull{nullptr};

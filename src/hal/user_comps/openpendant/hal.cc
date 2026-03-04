@@ -105,6 +105,7 @@ Hal::~Hal()
 
     freeSimulatedPin((void**)(&memory->in.feedOverrideMaxVel));
     freeSimulatedPin((void**)(&memory->in.feedOverrideValue));
+    freeSimulatedPin((void**)(&memory->in.feedRateMmPerMinute));
 
     freeSimulatedPin((void**)(&memory->in.isProgramRunning));
     freeSimulatedPin((void**)(&memory->in.isProgramPaused));
@@ -507,6 +508,7 @@ void Hal::init()
     newHalFloat(HAL_OUT, &(memory->out.feedOverrideScale), mHalCompId, "%s.halui.feed-override.scale", mComponentPrefix);
     newHalFloat(HAL_IN, &(memory->in.feedOverrideMaxVel), mHalCompId, "%s.halui.max-velocity.value", mComponentPrefix);
     newHalFloat(HAL_IN, &(memory->in.feedOverrideValue), mHalCompId, "%s.halui.feed-override.value", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.feedRateMmPerMinute), mHalCompId, "%s.motion.feed-mm-per-minute", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedOverrideDecrease), mHalCompId, "%s.halui.feed-override.decrease", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedOverrideIncrease), mHalCompId, "%s.halui.feed-override.increase", mComponentPrefix);
 
@@ -644,42 +646,42 @@ void Hal::setAxisXActive(bool enabled)
 {
     *memory->out.axisXSelect   = enabled;
     *memory->out.axisXJogEnable = enabled;
-    *mHalCout << "hal   X axis active" << endl;
+    *mHalCout << "hal   X axis "<< (enabled ? "active" : "disabled") << endl;
 }
 // ----------------------------------------------------------------------
 void Hal::setAxisYActive(bool enabled)
 {
     *memory->out.axisYSelect   = enabled;
     *memory->out.axisYJogEnable = enabled;
-    *mHalCout << "hal   Y axis active" << endl;
+    *mHalCout << "hal   Y axis " << (enabled ? "active" : "disabled") << endl;
 }
 // ----------------------------------------------------------------------
 void Hal::setAxisZActive(bool enabled)
 {
     *memory->out.axisZSelect   = enabled;
     *memory->out.axisZJogEnable = enabled;
-    *mHalCout << "hal   Z axis active" << endl;
+    *mHalCout << "hal   Z axis " << (enabled ? "active" : "disabled") << endl;
 }
 // ----------------------------------------------------------------------
 void Hal::setAxisAActive(bool enabled)
 {
     *memory->out.axisASelect   = enabled;
     *memory->out.axisAJogEnable = enabled;
-    *mHalCout << "hal   A axis active" << endl;
+    *mHalCout << "hal   A axis " << (enabled ? "active" : "disabled") << endl;
 }
 // ----------------------------------------------------------------------
 void Hal::setAxisBActive(bool enabled)
 {
     *memory->out.axisBSelect   = enabled;
     *memory->out.axisBJogEnable = enabled;
-    *mHalCout << "hal   B axis active" << endl;
+    *mHalCout << "hal   B axis " << (enabled ? "active" : "disabled") << endl;
 }
 // ----------------------------------------------------------------------
 void Hal::setAxisCActive(bool enabled)
 {
     *memory->out.axisCSelect   = enabled;
     *memory->out.axisCJogEnable = enabled;
-    *mHalCout << "hal   C axis active" << endl;
+    *mHalCout << "hal   C axis " << (enabled ? "active" : "disabled") << endl;
 }
 // ----------------------------------------------------------------------
 void Hal::setStepSize(const real_t stepSize)
@@ -861,6 +863,11 @@ real_t Hal::getSpindleOverrideValue() const
 real_t Hal::getFeedOverrideMaxVel() const
 {
     return *memory->in.feedOverrideMaxVel;
+}
+// ----------------------------------------------------------------------
+real_t Hal::getFeedRateMmPerMinute() const
+{
+    return memory->in.feedRateMmPerMinute ? *memory->in.feedRateMmPerMinute : 0.0;
 }
 // ----------------------------------------------------------------------
 real_t Hal::getFeedOverrideValue() const

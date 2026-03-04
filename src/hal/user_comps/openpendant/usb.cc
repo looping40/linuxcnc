@@ -206,8 +206,9 @@ void Usb::onUsbDataReceived(struct libusb_transfer* transfer)
         case (LIBUSB_TRANSFER_NO_DEVICE):
         case (LIBUSB_TRANSFER_OVERFLOW):
         case (LIBUSB_TRANSFER_ERROR):
-            std::cerr << "transfer error: " << transfer->status << endl;
-            requestTermination();
+            std::cerr << "transfer error: " << transfer->status
+                      << ", requesting reconnect" << endl;
+            setDoReconnect(true);
             break;
 
         default:
@@ -236,6 +237,30 @@ void Usb::requestTermination()
 }
 
 // ----------------------------------------------------------------------
+void Usb::cancelAsyncTransfer()
+{
+    if (inTransfer != nullptr)
+    {
+        libusb_cancel_transfer(inTransfer);
+    }
+}
+
+// ----------------------------------------------------------------------
+void Usb::reallocTransfers()
+{
+    if (inTransfer != nullptr)
+    {
+        libusb_free_transfer(inTransfer);
+    }
+    if (outTransfer != nullptr)
+    {
+        libusb_free_transfer(outTransfer);
+    }
+    inTransfer = libusb_alloc_transfer(0);
+    outTransfer = libusb_alloc_transfer(0);
+}
+
+// ----------------------------------------------------------------------
 bool Usb::setupAsyncTransfer()
 {
     assert(inTransfer != nullptr);
@@ -247,8 +272,13 @@ bool Usb::setupAsyncTransfer()
                               static_cast<void*>(this),
                               750);
     int r = libusb_submit_transfer(inTransfer);
-    assert(0 == r);
-    return (0 == r);
+    if (r != 0)
+    {
+        std::cerr << "setupAsyncTransfer: libusb_submit_transfer failed: "
+                  << libusb_error_name(r) << endl;
+        return false;
+    }
+    return true;
 }
 
 // ----------------------------------------------------------------------

@@ -296,9 +296,11 @@ void Pendant::updateDisplayData()
     // Feed rate: override × max velocity → mm/min
     pkt.feed_rate = static_cast<int32_t>(
         mHal.getFeedOverrideValue() * mHal.getFeedOverrideMaxVel() * 60.0);
+    // Feed rate: actual feed in mm/min (0 when idle; from motion.feed-mm-per-minute)
+    pkt.feed_rate = static_cast<int32_t>(mHal.getFeedRateMmPerMinute());
 
     // Spindle RPM
-    pkt.spindle_rpm = static_cast<int32_t>(mHal.getspindleSpeedCmd() * 60.0);
+    pkt.spindle_rpm = static_cast<int32_t>(mHal.getspindleSpeedCmd());
 
     // Overrides (0–100+ %)
     pkt.feed_ovr    = static_cast<uint16_t>(mHal.getFeedOverrideValue() * 100.0);

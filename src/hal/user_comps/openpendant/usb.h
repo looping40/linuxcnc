@@ -98,6 +98,8 @@ public:
     void requestTermination();
 
     bool setupAsyncTransfer();
+    void cancelAsyncTransfer();
+    void reallocTransfers();
     void sendDisplayData();
 
     void enableVerboseTx(bool enable);
