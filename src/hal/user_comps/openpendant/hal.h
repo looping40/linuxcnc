@@ -259,10 +259,10 @@ public:
 
         //! to be connected to \ref  \ref halui.feed-override.scale
         hal_float_t* feedOverrideScale{nullptr};
-        //! to be connected to \ref halui.feed-override.decrease
-        hal_bit_t  * feedOverrideDecrease{nullptr};
-        //! to be connected to \ref halui.feed-override.increase
-        hal_bit_t  * feedOverrideIncrease{nullptr};
+        //! to be connected to halui.feed-override.counts
+        hal_s32_t* feedOverrideCounts{nullptr};
+        //! to be connected to halui.feed-override.count-enable
+        hal_bit_t* feedOverrideCountEnable{nullptr};
 
         //! to be connected to \ref halui.spindle.start
         hal_bit_t* spindleStart{nullptr};
@@ -276,10 +276,10 @@ public:
         hal_bit_t* spindleDoDecrease{nullptr};
         //! to be connected to halui.spindle.increase
         hal_bit_t* spindleDoIncrease{nullptr};
-        //! to be connected to halui.spindle-override.decrease
-        hal_bit_t* spindleOverrideDoDecrease{nullptr};
-        //! to be connected to halui.spindle-override.increase
-        hal_bit_t* spindleOverrideDoIncrease{nullptr};
+        //! to be connected to halui.spindle-override.counts
+        hal_s32_t* spindleOverrideCounts{nullptr};
+        //! to be connected to halui.spindle-override.count-enable
+        hal_bit_t* spindleOverrideCountEnable{nullptr};
         //! to be connected to \ref  \ref halui.spindle-override.scale
         hal_float_t* spindleOverrideScale{nullptr};
 
@@ -416,10 +416,6 @@ public:
     //! \return true if connected, false otherwise
     bool getIsPendantConnected() const;
 
-    //! \sa feedOverrideIncrease(bool, size_t)
-    void setFeedPlus(bool enabled);
-    //! \sa feedOverrideDecrease(bool, size_t)
-    void setFeedMinus(bool enabled);
     //! Returns the current Max Velocity value.
     //! \sa Hal::In::feedOverrideMaxVel
     real_t getFeedOverrideMaxVel() const;
@@ -470,10 +466,6 @@ public:
     //! \sa Hal::In::spindleOverrideValue
     //! \return the current spindle override value v: 0 <= v <= 1
     real_t getSpindleOverrideValue() const;
-    //! \sa setSpindleOverridePlus(bool, size_t)
-    void setSpindleOverridePlus(bool enabled);
-    //! \sa setSpindleOverrideMinus(bool, size_t)
-    void setSpindleOverrideMinus(bool enabled);
     //! \sa setFunction(bool, size_t)
     void setFunction(bool enabled);
     //! Requests machine to search home for all axis. \ref halui.home-all
@@ -536,15 +528,8 @@ public:
     void setMacro16(bool enabled);
     //! \sa setMacro16(bool, size_t)
 
-    void toggleSpindleOverrideIncrease();
-    //! Inverts the spindle decrease signal state once.
-    void toggleSpindleOverrideDecrease();
-    //! Inverts the feedrate increase signal state once.
-    //! \sa feedrateIncrease(int8_t)
-    void toggleFeedrateIncrease();
-    //! Inverts the feedrate decrease signal state once.
-    //! \sa feedrateDecrease(int8_t)
-    void toggleFeedrateDecrease();
+    void setFeedOverrideCounts(int32_t counts);
+    void setSpindleOverrideCounts(int32_t counts);
     //! Writes the corresponding counter to to each axis' count.
     //! \param counters values to propagate to each axis
     void setJogCounts(const HandWheelCounters& counters);

@@ -111,14 +111,11 @@ OpenPendantComponent::~OpenPendantComponent()
 // ----------------------------------------------------------------------
 void OpenPendantComponent::updateDisplay()
 {
-    if (mIsRunning)
+    if (!mIsRunning || mUsb.getDoReconnect())
     {
-        mPendant.updateDisplayData();
+        return;
     }
-    else
-    {
-        mPendant.clearDisplayData();
-    }
+    mPendant.updateDisplayData();
     mUsb.sendDisplayData();
 }
 // ----------------------------------------------------------------------
@@ -169,6 +166,10 @@ int OpenPendantComponent::run()
         }
         process();
         teardownUsb();
+        if (isRunning())
+        {
+            *mInitCout << "reconnect  will retry connection..." << endl;
+        }
     }
     teardownHal();
 
@@ -217,15 +218,20 @@ void OpenPendantComponent::process()
             timeout.tv_usec = 200 * 1000;
 
             int r = libusb_handle_events_timeout_completed(getUsbContext(), &timeout, nullptr);
-            assert((r == LIBUSB_SUCCESS) || (r == LIBUSB_ERROR_NO_DEVICE) || (r == LIBUSB_ERROR_BUSY) ||
-                   (r == LIBUSB_ERROR_TIMEOUT) || (r == LIBUSB_ERROR_INTERRUPTED));
+            if (r != LIBUSB_SUCCESS && r != LIBUSB_ERROR_NO_DEVICE &&
+                r != LIBUSB_ERROR_BUSY && r != LIBUSB_ERROR_TIMEOUT &&
+                r != LIBUSB_ERROR_INTERRUPTED)
+            {
+                std::cerr << "handle_events error: " << libusb_error_name(r)
+                          << ", requesting reconnect" << endl;
+                mUsb.setDoReconnect(true);
+            }
             if (mHal.isSimulationModeEnabled())
             {
                 linuxcncSimulate();
             }
             updateDisplay();
         }
-        updateDisplay();
 
         mHal.setIsPendantConnected(false);
         *mInitCout << "connection lost, cleaning up" << endl;
@@ -238,9 +244,15 @@ void OpenPendantComponent::process()
         tv.tv_sec  = 1;
         tv.tv_usec = 0;
         int r = libusb_handle_events_timeout_completed(getUsbContext(), &tv, nullptr);
-        assert((0 == r) || (r == LIBUSB_ERROR_NO_DEVICE));
+        if (r != LIBUSB_SUCCESS && r != LIBUSB_ERROR_NO_DEVICE)
+        {
+            std::cerr << "cleanup: handle_events returned " << libusb_error_name(r) << endl;
+        }
         r = libusb_release_interface(getUsbDeviceHandle(), 0);
-        assert((0 == r) || (r == LIBUSB_ERROR_NO_DEVICE));
+        if (r != LIBUSB_SUCCESS && r != LIBUSB_ERROR_NO_DEVICE)
+        {
+            std::cerr << "cleanup: release_interface returned " << libusb_error_name(r) << endl;
+        }
         libusb_close(getUsbDeviceHandle());
         mUsb.setDeviceHandle(nullptr);
     }
@@ -248,10 +260,12 @@ void OpenPendantComponent::process()
 // ----------------------------------------------------------------------
 void OpenPendantComponent::teardownUsb()
 {
+    // Free transfers BEFORE destroying context to avoid double-free
+    // (libusb_exit may invalidate transfer internals)
+    mUsb.reallocTransfers();
     libusb_exit(getUsbContext());
     mUsb.setContext(nullptr);
-    // Re-allocate transfers for next connection cycle
-    mUsb.reallocTransfers();
+    std::cerr << "teardown complete, ready to reconnect" << endl;
 }
 // ----------------------------------------------------------------------
 void OpenPendantComponent::enableVerbosePendant(bool enable)

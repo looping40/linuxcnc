@@ -89,6 +89,8 @@ private:
     uint32_t mLastBtnState{0};
     uint8_t  mCurrentStepIdx{0};
     uint8_t  mCurrentWheelMode{WHEEL_MODE_OFF};
+    int32_t  mFeedOvrCounts{0};
+    int32_t  mSpindleOvrCounts{0};
 
     std::ostream  mDevNull{nullptr};
     std::ostream* mPendantCout;

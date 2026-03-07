@@ -179,8 +179,8 @@ Hal::~Hal()
     freeSimulatedPin((void**)(&memory->out.feedValueSelected_step));
 
     freeSimulatedPin((void**)(&memory->out.feedOverrideScale));
-    freeSimulatedPin((void**)(&memory->out.feedOverrideDecrease));
-    freeSimulatedPin((void**)(&memory->out.feedOverrideIncrease));
+    freeSimulatedPin((void**)(&memory->out.feedOverrideCounts));
+    freeSimulatedPin((void**)(&memory->out.feedOverrideCountEnable));
 
     freeSimulatedPin((void**)(&memory->out.spindleStart));
     freeSimulatedPin((void**)(&memory->out.spindleStop));
@@ -188,9 +188,9 @@ Hal::~Hal()
     freeSimulatedPin((void**)(&memory->out.spindleDoRunReverse));
     freeSimulatedPin((void**)(&memory->out.spindleDoDecrease));
     freeSimulatedPin((void**)(&memory->out.spindleDoIncrease));
-    freeSimulatedPin((void**)(&memory->out.spindleOverrideDoDecrease));
-    freeSimulatedPin((void**)(&memory->out.spindleOverrideDoIncrease));
     freeSimulatedPin((void**)(&memory->out.spindleOverrideScale));
+    freeSimulatedPin((void**)(&memory->out.spindleOverrideCounts));
+    freeSimulatedPin((void**)(&memory->out.spindleOverrideCountEnable));
 
     freeSimulatedPin((void**)(&memory->out.axisXSelect));
     freeSimulatedPin((void**)(&memory->out.axisYSelect));
@@ -509,16 +509,16 @@ void Hal::init()
     newHalFloat(HAL_IN, &(memory->in.feedOverrideMaxVel), mHalCompId, "%s.halui.max-velocity.value", mComponentPrefix);
     newHalFloat(HAL_IN, &(memory->in.feedOverrideValue), mHalCompId, "%s.halui.feed-override.value", mComponentPrefix);
     newHalFloat(HAL_IN, &(memory->in.feedRateMmPerMinute), mHalCompId, "%s.motion.feed-mm-per-minute", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.feedOverrideDecrease), mHalCompId, "%s.halui.feed-override.decrease", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.feedOverrideIncrease), mHalCompId, "%s.halui.feed-override.increase", mComponentPrefix);
+    newHalSigned32(HAL_OUT, &(memory->out.feedOverrideCounts), mHalCompId, "%s.halui.feed-override.counts", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.feedOverrideCountEnable), mHalCompId, "%s.halui.feed-override.count-enable", mComponentPrefix);
 
     newHalFloat(HAL_IN, &(memory->in.spindleSpeedCmd), mHalCompId, "%s.halui.spindle-speed-cmd", mComponentPrefix);
     newHalFloat(HAL_IN, &(memory->in.spindleOverrideValue), mHalCompId, "%s.halui.spindle-override.value",mComponentPrefix);
     newHalFloat(HAL_OUT, &(memory->out.spindleOverrideScale), mHalCompId, "%s.halui.spindle-override.scale", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.spindleDoIncrease), mHalCompId, "%s.halui.spindle.increase", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.spindleDoDecrease), mHalCompId, "%s.halui.spindle.decrease", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.spindleOverrideDoIncrease), mHalCompId, "%s.halui.spindle-override.increase", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.spindleOverrideDoDecrease), mHalCompId, "%s.halui.spindle-override.decrease", mComponentPrefix);
+    newHalSigned32(HAL_OUT, &(memory->out.spindleOverrideCounts), mHalCompId, "%s.halui.spindle-override.counts", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.spindleOverrideCountEnable), mHalCompId, "%s.halui.spindle-override.count-enable", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.spindleStart), mHalCompId, "%s.halui.spindle.start", mComponentPrefix);
     newHalBit(HAL_IN, &(memory->in.spindleIsOn), mHalCompId, "%s.halui.spindle.is-on", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.spindleStop), mHalCompId, "%s.halui.spindle.stop", mComponentPrefix);
@@ -826,20 +826,6 @@ void Hal::toggleStartResumeProgram()
     }
 }
 // ----------------------------------------------------------------------
-void Hal::setFeedPlus(bool enabled)
-{
-    *memory->out.feedOverrideScale = 0.05;
-    *memory->out.feedOverrideIncrease = enabled;
-    setPin(enabled, "step-up");
-}
-// ----------------------------------------------------------------------
-void Hal::setFeedMinus(bool enabled)
-{
-    *memory->out.feedOverrideScale = 0.05;
-    *memory->out.feedOverrideDecrease = enabled;
-    setPin(enabled, "step-down");
-}
-// ----------------------------------------------------------------------
 real_t Hal::getspindleSpeedCmd() const
 {
     return *memory->in.spindleSpeedCmd;
@@ -913,34 +899,6 @@ void Hal::setFeedValueSelectedLead(bool selected)
 void Hal::setFeedOverrideScale(real_t scale)
 {
     *memory->out.feedOverrideScale = scale;
-}
-// ----------------------------------------------------------------------
-void Hal::setSpindleOverridePlus(bool enabled)
-{
-    if (enabled)
-    {
-        *memory->out.spindleOverrideScale = 0.05;
-        *memory->out.spindleOverrideDoIncrease = true;
-    }
-    else
-    {
-        *memory->out.spindleOverrideDoIncrease = false;
-    }
-    setPin(enabled, "spindle");
-}
-// ----------------------------------------------------------------------
-void Hal::setSpindleOverrideMinus(bool enabled)
-{
-    if (enabled)
-    {
-        *memory->out.spindleOverrideScale = 0.05;
-        *memory->out.spindleOverrideDoDecrease = true;
-    }
-    else
-    {
-        *memory->out.spindleOverrideDoDecrease = false;
-    }
-    setPin(enabled, "spindle");
 }
 // ----------------------------------------------------------------------
 /**
@@ -1424,55 +1382,17 @@ bool Hal::waitForRequestedMode(volatile hal_bit_t * condition)
     return false;
 }
 // ----------------------------------------------------------------------
-void Hal::toggleSpindleOverrideIncrease()
+void Hal::setFeedOverrideCounts(int32_t counts)
 {
-    if (*memory->out.spindleOverrideDoIncrease)
-    {
-        *memory->out.spindleOverrideDoIncrease = false;
-    }
-    else
-    {
-        *memory->out.spindleOverrideScale = 0.01;
-        *memory->out.spindleOverrideDoIncrease = true;
-    }
+    *memory->out.feedOverrideScale = 0.01;
+    *memory->out.feedOverrideCountEnable = true;
+    *memory->out.feedOverrideCounts = counts;
 }
 // ----------------------------------------------------------------------
-void Hal::toggleSpindleOverrideDecrease()
+void Hal::setSpindleOverrideCounts(int32_t counts)
 {
-    if (*memory->out.spindleOverrideDoDecrease)
-    {
-        *memory->out.spindleOverrideDoDecrease = false;
-    }
-    else
-    {
-        *memory->out.spindleOverrideScale = 0.01;
-        *memory->out.spindleOverrideDoDecrease = true;
-    }
-}
-// ----------------------------------------------------------------------
-void Hal::toggleFeedrateIncrease()
-{
-    if (*memory->out.feedOverrideIncrease)
-    {
-        *memory->out.feedOverrideIncrease = false;
-    }
-    else
-    {
-        *memory->out.feedOverrideScale = 0.01;
-        *memory->out.feedOverrideIncrease = true;
-    }
-}
-// ----------------------------------------------------------------------
-void Hal::toggleFeedrateDecrease()
-{
-    if (*memory->out.feedOverrideDecrease)
-    {
-        *memory->out.feedOverrideDecrease = false;
-    }
-    else
-    {
-        *memory->out.feedOverrideScale = 0.01;
-        *memory->out.feedOverrideDecrease = true;
-    }
+    *memory->out.spindleOverrideScale = 0.01;
+    *memory->out.spindleOverrideCountEnable = true;
+    *memory->out.spindleOverrideCounts = counts;
 }
 }

@@ -33,16 +33,21 @@ using std::endl;
 
 namespace OpenPendant {
 
-// Step multiplier table — indexed by step_req (0–6).
-// Values in mm; 0 = disabled.
+// Step multiplier table — indexed by step_req from ESP32.
+// ESP32 STEP_MULT[11] sends its array index; selectable entries are 1,3,8,10.
+// Values in mm; 0 = disabled/not selectable.
 static const float STEP_MULT[] = {
-    0.0f,    // 0: off
-    0.001f,  // 1: 0.001 mm
-    0.01f,   // 2: 0.01 mm
-    0.1f,    // 3: 0.1 mm
-    1.0f,    // 4: 1 mm
-    5.0f,    // 5: 5 mm
-    10.0f,   // 6: 10 mm
+    0.0f,    //  0: off
+    0.001f,  //  1: 0.001 mm  (ESP32 multiplier=1)
+    0.005f,  //  2: (not selectable)
+    0.01f,   //  3: 0.01 mm   (ESP32 multiplier=10)
+    0.02f,   //  4: (not selectable)
+    0.03f,   //  5: (not selectable)
+    0.04f,   //  6: (not selectable)
+    0.05f,   //  7: (not selectable)
+    0.1f,    //  8: 0.1 mm    (ESP32 multiplier=100)
+    0.5f,    //  9: (not selectable)
+    1.0f,    // 10: 1.0 mm    (ESP32 multiplier=1000)
 };
 static const size_t STEP_MULT_COUNT = sizeof(STEP_MULT) / sizeof(STEP_MULT[0]);
 
@@ -185,13 +190,13 @@ void Pendant::processEvent(const pendant_rx_packet_t& rx)
     {
         if (rx.wheel_mode == WHEEL_MODE_ADJ_FEED)
         {
-            if (delta > 0) mHal.toggleFeedrateIncrease();
-            else           mHal.toggleFeedrateDecrease();
+            mFeedOvrCounts += delta;
+            mHal.setFeedOverrideCounts(mFeedOvrCounts);
         }
         else if (rx.wheel_mode == WHEEL_MODE_ADJ_SPINDLE)
         {
-            if (delta > 0) mHal.toggleSpindleOverrideIncrease();
-            else           mHal.toggleSpindleOverrideDecrease();
+            mSpindleOvrCounts += delta;
+            mHal.setSpindleOverrideCounts(mSpindleOvrCounts);
         }
         else
         {
