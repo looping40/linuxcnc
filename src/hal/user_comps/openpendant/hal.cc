@@ -754,6 +754,11 @@ bool Hal::getIsMachineOn() const
     return *memory->in.isMachineOn;
 }
 // ----------------------------------------------------------------------
+bool Hal::getIsModeAuto() const
+{
+    return *memory->in.isModeAuto;
+}
+// ----------------------------------------------------------------------
 void Hal::setIsPendantSleeping(bool isSleeping)
 {
     *memory->out.isPendantSleeping = isSleeping;

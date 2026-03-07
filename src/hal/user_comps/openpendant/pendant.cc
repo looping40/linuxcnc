@@ -198,7 +198,7 @@ void Pendant::processEvent(const pendant_rx_packet_t& rx)
             mSpindleOvrCounts += delta;
             mHal.setSpindleOverrideCounts(mSpindleOvrCounts);
         }
-        else
+        else if (!mHal.getIsModeAuto())
         {
             mHandWheel.count(delta);
             mHal.setJogCounts(mHandWheel.counters());
