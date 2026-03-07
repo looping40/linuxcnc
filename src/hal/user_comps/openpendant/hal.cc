@@ -429,7 +429,9 @@ void Hal::init()
         "macro-3", "half", "zero", "safe-z",
         "home", "macro-1", "macro-2", "spindle",
         "step-up", "step-down", "mode", "stop",
-        "reset", "estop"
+        "reset", "estop",
+        "goto-zero-x", "goto-zero-y", "goto-zero-z", "goto-zero-a",
+        "set-zero", "set-zero-x", "set-zero-y", "set-zero-z", "set-zero-a"
     };
     static const size_t buttonCount = sizeof(buttonNames) / sizeof(buttonNames[0]);
     for (size_t idx = 0; idx < buttonCount; idx++)
@@ -950,13 +952,45 @@ void Hal::setWorkpieceHome(bool enabled)
     {
         if (enabled)
         {
-            setPin(enabled, "goto-zero");
+            // Route to per-axis pin based on active axis selection
+            if      (*memory->out.axisXSelect) setPin(enabled, "goto-zero-x");
+            else if (*memory->out.axisYSelect) setPin(enabled, "goto-zero-y");
+            else if (*memory->out.axisZSelect) setPin(enabled, "goto-zero-z");
+            else if (*memory->out.axisASelect) setPin(enabled, "goto-zero-a");
+            else                               setPin(enabled, "goto-zero");
         }
     }
     if (!enabled)
     {
-    setPin(enabled, "goto-zero");
+        setPin(false, "goto-zero");
+        setPin(false, "goto-zero-x");
+        setPin(false, "goto-zero-y");
+        setPin(false, "goto-zero-z");
+        setPin(false, "goto-zero-a");
+    }
 }
+// ----------------------------------------------------------------------
+void Hal::setWorkpieceZero(bool enabled)
+{
+    if (requestMdiMode(enabled))
+    {
+        if (enabled)
+        {
+            if      (*memory->out.axisXSelect) setPin(enabled, "set-zero-x");
+            else if (*memory->out.axisYSelect) setPin(enabled, "set-zero-y");
+            else if (*memory->out.axisZSelect) setPin(enabled, "set-zero-z");
+            else if (*memory->out.axisASelect) setPin(enabled, "set-zero-a");
+            else                               setPin(enabled, "set-zero");
+        }
+    }
+    if (!enabled)
+    {
+        setPin(false, "set-zero");
+        setPin(false, "set-zero-x");
+        setPin(false, "set-zero-y");
+        setPin(false, "set-zero-z");
+        setPin(false, "set-zero-a");
+    }
 }
 // ----------------------------------------------------------------------
 void Hal::toggleSpindleDirection(bool enabled)

@@ -474,6 +474,7 @@ public:
     void setSafeZ(bool enabled);
     //! \sa setWorkpieceHom(bool, size_t)
     void setWorkpieceHome(bool enabled);
+    void setWorkpieceZero(bool enabled);
     //! \sa toggleSpindleDirection(bool, size_t)
     void toggleSpindleDirection(bool enabled);
     //! \sa toggleSpindleOnOff(bool, size_t)

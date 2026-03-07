@@ -263,8 +263,8 @@ void Pendant::processEvent(const pendant_rx_packet_t& rx)
     if (pressed & BTN_HALF)          mHal.setMacro4(true);
     if (released & BTN_HALF)         mHal.setMacro4(false);
 
-    if (pressed & BTN_ZERO)          mHal.setMacro5(true);
-    if (released & BTN_ZERO)         mHal.setMacro5(false);
+    if (pressed & BTN_ZERO)          mHal.setWorkpieceZero(true);
+    if (released & BTN_ZERO)         mHal.setWorkpieceZero(false);
 
     // Rewind
     if (pressed & BTN_REWIND)        mHal.setMacro6(true);
