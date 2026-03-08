@@ -48,8 +48,8 @@ net eoffset-clr2            z_level_compensation.clear      => logic-and.in-01
 net xpos-cmd                z_level_compensation.x-pos      <= axis.x.pos-cmd
 net ypos-cmd                z_level_compensation.y-pos      <= axis.y.pos-cmd
 net zpos-cmd                z_level_compensation.z-pos      <= axis.z.pos-cmd
-net z_compensation_on       z_level_compensation.enable-in  <= qtdragon.comp-on
-net eoffset-zlevel-count    z_level_compensation.counts     => qtdragon.eoffset-zlevel-count
+#net z_compensation_on       z_level_compensation.enable-in  <= qtdragon.comp-on
+#net eoffset-zlevel-count    z_level_compensation.counts     => qtdragon.eoffset-zlevel-count
 
 net eoffset-spindle-count   scaled-s32-sums.0.in0
 net eoffset-zlevel-count    scaled-s32-sums.0.in1

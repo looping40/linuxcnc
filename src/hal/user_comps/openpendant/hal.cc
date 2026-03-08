@@ -431,7 +431,8 @@ void Hal::init()
         "step-up", "step-down", "mode", "stop",
         "reset", "estop",
         "goto-zero-x", "goto-zero-y", "goto-zero-z", "goto-zero-a",
-        "set-zero", "set-zero-x", "set-zero-y", "set-zero-z", "set-zero-a"
+        "set-zero", "set-zero-x", "set-zero-y", "set-zero-z", "set-zero-a",
+        "goto-g30", "set-g30"
     };
     static const size_t buttonCount = sizeof(buttonNames) / sizeof(buttonNames[0]);
     for (size_t idx = 0; idx < buttonCount; idx++)
@@ -995,6 +996,36 @@ void Hal::setWorkpieceZero(bool enabled)
         setPin(false, "set-zero-y");
         setPin(false, "set-zero-z");
         setPin(false, "set-zero-a");
+    }
+}
+// ----------------------------------------------------------------------
+/**
+ * Go to G30 position (MDI G30).
+ */
+void Hal::setGotoG30(bool enabled)
+{
+    if (requestMdiMode(enabled))
+    {
+        setPin(enabled, "goto-g30");
+    }
+    if (!enabled)
+    {
+        setPin(false, "goto-g30");
+    }
+}
+// ----------------------------------------------------------------------
+/**
+ * Set current position as G30 (MDI G10 L20 P1 or equivalent).
+ */
+void Hal::setSetG30(bool enabled)
+{
+    if (requestMdiMode(enabled))
+    {
+        setPin(enabled, "set-g30");
+    }
+    if (!enabled)
+    {
+        setPin(false, "set-g30");
     }
 }
 // ----------------------------------------------------------------------
