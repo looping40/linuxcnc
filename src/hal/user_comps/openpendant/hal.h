@@ -482,6 +482,10 @@ public:
     void setGotoG30Z(bool enabled);
     void setGotoG30A(bool enabled);
     void setSetG30(bool enabled);
+    void setSetG30X(bool enabled);
+    void setSetG30Y(bool enabled);
+    void setSetG30Z(bool enabled);
+    void setSetG30A(bool enabled);
     //! \sa toggleSpindleDirection(bool, size_t)
     void toggleSpindleDirection(bool enabled);
     //! \sa toggleSpindleOnOff(bool, size_t)

@@ -278,6 +278,38 @@ void Pendant::processEvent(const pendant_rx_packet_t& rx)
     //if (pressed & BTN_ESTOP)         mHal.setMacro11(false);
     //if (released & BTN_ESTOP)        mHal.setMacro11(true);
 
+    // Goto G30
+    if (pressed & BTN_GOTO_G30)      mHal.setGotoG30(true);
+    if (released & BTN_GOTO_G30)     mHal.setGotoG30(false);
+
+    if (pressed & BTN_GOTO_G30_X)    mHal.setGotoG30X(true);
+    if (released & BTN_GOTO_G30_X)   mHal.setGotoG30X(false);
+
+    if (pressed & BTN_GOTO_G30_Y)    mHal.setGotoG30Y(true);
+    if (released & BTN_GOTO_G30_Y)   mHal.setGotoG30Y(false);
+
+    if (pressed & BTN_GOTO_G30_Z)    mHal.setGotoG30Z(true);
+    if (released & BTN_GOTO_G30_Z)   mHal.setGotoG30Z(false);
+
+    if (pressed & BTN_GOTO_G30_A)    mHal.setGotoG30A(true);
+    if (released & BTN_GOTO_G30_A)   mHal.setGotoG30A(false);
+
+    // Set G30
+    if (pressed & BTN_SET_G30)       mHal.setSetG30(true);
+    if (released & BTN_SET_G30)      mHal.setSetG30(false);
+
+    if (pressed & BTN_SET_G30_X)     mHal.setSetG30X(true);
+    if (released & BTN_SET_G30_X)    mHal.setSetG30X(false);
+
+    if (pressed & BTN_SET_G30_Y)     mHal.setSetG30Y(true);
+    if (released & BTN_SET_G30_Y)    mHal.setSetG30Y(false);
+
+    if (pressed & BTN_SET_G30_Z)     mHal.setSetG30Z(true);
+    if (released & BTN_SET_G30_Z)    mHal.setSetG30Z(false);
+
+    if (pressed & BTN_SET_G30_A)     mHal.setSetG30A(true);
+    if (released & BTN_SET_G30_A)    mHal.setSetG30A(false);
+
     //*mPendantCout << "pndnt rx btn=0x" << std::hex << rx.btn_state
     //              << " mode=0x" << (int)rx.wheel_mode
     //              << " wheel=" << std::dec << rx.wheel_abs

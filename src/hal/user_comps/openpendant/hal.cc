@@ -433,7 +433,8 @@ void Hal::init()
         "goto-zero-x", "goto-zero-y", "goto-zero-z", "goto-zero-a",
         "set-zero", "set-zero-x", "set-zero-y", "set-zero-z", "set-zero-a",
         "goto-g30", "set-g30",
-        "goto-g30-x", "goto-g30-y", "goto-g30-z", "goto-g30-a"
+        "goto-g30-x", "goto-g30-y", "goto-g30-z", "goto-g30-a",
+        "set-g30-x", "set-g30-y", "set-g30-z", "set-g30-a"
     };
     static const size_t buttonCount = sizeof(buttonNames) / sizeof(buttonNames[0]);
     for (size_t idx = 0; idx < buttonCount; idx++)
@@ -1075,6 +1076,54 @@ void Hal::setSetG30(bool enabled)
     if (!enabled)
     {
         setPin(false, "set-g30");
+    }
+}
+// ----------------------------------------------------------------------
+void Hal::setSetG30X(bool enabled)
+{
+    if (requestMdiMode(enabled))
+    {
+        setPin(enabled, "set-g30-x");
+    }
+    if (!enabled)
+    {
+        setPin(false, "set-g30-x");
+    }
+}
+// ----------------------------------------------------------------------
+void Hal::setSetG30Y(bool enabled)
+{
+    if (requestMdiMode(enabled))
+    {
+        setPin(enabled, "set-g30-y");
+    }
+    if (!enabled)
+    {
+        setPin(false, "set-g30-y");
+    }
+}
+// ----------------------------------------------------------------------
+void Hal::setSetG30Z(bool enabled)
+{
+    if (requestMdiMode(enabled))
+    {
+        setPin(enabled, "set-g30-z");
+    }
+    if (!enabled)
+    {
+        setPin(false, "set-g30-z");
+    }
+}
+// ----------------------------------------------------------------------
+void Hal::setSetG30A(bool enabled)
+{
+    if (requestMdiMode(enabled))
+    {
+        setPin(enabled, "set-g30-a");
+    }
+    if (!enabled)
+    {
+        setPin(false, "set-g30-a");
     }
 }
 // ----------------------------------------------------------------------

@@ -53,6 +53,16 @@ typedef struct __attribute__((packed)) {
 #define BTN_STOP         (1u << 15)
 #define BTN_RESET        (1u << 16)
 #define BTN_ESTOP        (1u << 17)
+#define BTN_GOTO_G30     (1u << 18)
+#define BTN_SET_G30      (1u << 19)
+#define BTN_GOTO_G30_X   (1u << 20)
+#define BTN_GOTO_G30_Y   (1u << 21)
+#define BTN_GOTO_G30_Z   (1u << 22)
+#define BTN_GOTO_G30_A   (1u << 23)
+#define BTN_SET_G30_X    (1u << 24)
+#define BTN_SET_G30_Y    (1u << 25)
+#define BTN_SET_G30_Z    (1u << 26)
+#define BTN_SET_G30_A    (1u << 27)
 
 // ─── Valeurs de wheel_mode ────────────────────────────────────────────────────
 // Ces valeurs définissent le protocole V2.
