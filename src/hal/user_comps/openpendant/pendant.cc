@@ -270,15 +270,19 @@ void Pendant::processEvent(const pendant_rx_packet_t& rx)
     if (pressed & BTN_REWIND)        mHal.setMacro6(true);
     if (released & BTN_REWIND)       mHal.setMacro6(false);
 
-    // E-Stop (separate from Reset)
-    if (pressed & BTN_ESTOP)         mHal.setReset(true);
-    if (released & BTN_ESTOP)        mHal.setReset(false);
+    // E-Stop: currently wired NO (normally open).
+    // To switch to NC: swap true/false below (pressed=safe, released=ESTOP)
+    if (pressed & BTN_ESTOP)         mHal.setMacro11(true);
+    if (released & BTN_ESTOP)        mHal.setMacro11(false);
+    // To switch to NC, use the following lines instead
+    //if (pressed & BTN_ESTOP)         mHal.setMacro11(false);
+    //if (released & BTN_ESTOP)        mHal.setMacro11(true);
 
-    *mPendantCout << "pndnt rx btn=0x" << std::hex << rx.btn_state
-                  << " mode=0x" << (int)rx.wheel_mode
-                  << " wheel=" << std::dec << rx.wheel_abs
-                  << " step=" << (int)rx.step_req
-                  << " delta=" << delta << endl;
+    //*mPendantCout << "pndnt rx btn=0x" << std::hex << rx.btn_state
+    //              << " mode=0x" << (int)rx.wheel_mode
+    //              << " wheel=" << std::dec << rx.wheel_abs
+    //              << " step=" << (int)rx.step_req
+    //              << " delta=" << delta << endl;
 }
 // ----------------------------------------------------------------------
 void Pendant::updateDisplayData()

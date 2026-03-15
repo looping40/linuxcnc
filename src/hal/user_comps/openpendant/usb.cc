@@ -144,8 +144,8 @@ void Usb::setDoReconnect(bool doReconnect)
 // ----------------------------------------------------------------------
 void Usb::sendDisplayData()
 {
-    *verboseTxOut << "out   sending " << sizeof(outputPackageData) << "B via interrupt OUT"
-                  << endl;
+    //*verboseTxOut << "out   sending " << sizeof(outputPackageData) << "B via interrupt OUT"
+    //              << endl;
 
     // Send via interrupt OUT endpoint.
     // outputPackageData starts with report_id=2, which TinyUSB extracts from buffer[0]

@@ -476,6 +476,12 @@ public:
     //! \sa setWorkpieceHom(bool, size_t)
     void setWorkpieceHome(bool enabled);
     void setWorkpieceZero(bool enabled);
+    void setGotoG30(bool enabled);
+    void setGotoG30X(bool enabled);
+    void setGotoG30Y(bool enabled);
+    void setGotoG30Z(bool enabled);
+    void setGotoG30A(bool enabled);
+    void setSetG30(bool enabled);
     //! \sa toggleSpindleDirection(bool, size_t)
     void toggleSpindleDirection(bool enabled);
     //! \sa toggleSpindleOnOff(bool, size_t)

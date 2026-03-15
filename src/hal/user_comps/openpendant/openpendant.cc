@@ -52,10 +52,10 @@ const char* OpenPendantComponent::getHalName() const
 // ----------------------------------------------------------------------
 void OpenPendantComponent::onInputDataReceived(const pendant_rx_packet_t& inPackage)
 {
-    *mRxCout << "in    rx btn=0x" << std::hex << inPackage.btn_state
-             << " mode=0x" << (int)inPackage.wheel_mode
-             << " wheel=" << std::dec << inPackage.wheel_abs
-             << " step=" << (int)inPackage.step_req << endl;
+    //*mRxCout << "in    rx btn=0x" << std::hex << inPackage.btn_state
+    //         << " mode=0x" << (int)inPackage.wheel_mode
+    //         << " wheel=" << std::dec << inPackage.wheel_abs
+    //         << " step=" << (int)inPackage.step_req << endl;
 
     mPendant.processEvent(inPackage);
 }

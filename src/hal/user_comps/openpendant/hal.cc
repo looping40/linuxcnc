@@ -429,10 +429,11 @@ void Hal::init()
         "macro-3", "half", "zero", "safe-z",
         "home", "macro-1", "macro-2", "spindle",
         "step-up", "step-down", "mode", "stop",
-        "reset", "estop",
+        "reset", "estop", "estop-not",
         "goto-zero-x", "goto-zero-y", "goto-zero-z", "goto-zero-a",
         "set-zero", "set-zero-x", "set-zero-y", "set-zero-z", "set-zero-a",
-        "goto-g30", "set-g30"
+        "goto-g30", "set-g30",
+        "goto-g30-x", "goto-g30-y", "goto-g30-z", "goto-g30-a"
     };
     static const size_t buttonCount = sizeof(buttonNames) / sizeof(buttonNames[0]);
     for (size_t idx = 0; idx < buttonCount; idx++)
@@ -642,49 +643,49 @@ void Hal::enableVerbose(bool enable)
 // ----------------------------------------------------------------------
 void Hal::setNoAxisActive(bool /*enabled*/)
 {
-    *mHalCout << "hal   OFF no axis active" << endl;
+    //*mHalCout << "hal   OFF no axis active" << endl;
 }
 // ----------------------------------------------------------------------
 void Hal::setAxisXActive(bool enabled)
 {
     *memory->out.axisXSelect   = enabled;
     *memory->out.axisXJogEnable = enabled;
-    *mHalCout << "hal   X axis "<< (enabled ? "active" : "disabled") << endl;
+    //*mHalCout << "hal   X axis "<< (enabled ? "active" : "disabled") << endl;
 }
 // ----------------------------------------------------------------------
 void Hal::setAxisYActive(bool enabled)
 {
     *memory->out.axisYSelect   = enabled;
     *memory->out.axisYJogEnable = enabled;
-    *mHalCout << "hal   Y axis " << (enabled ? "active" : "disabled") << endl;
+    //*mHalCout << "hal   Y axis " << (enabled ? "active" : "disabled") << endl;
 }
 // ----------------------------------------------------------------------
 void Hal::setAxisZActive(bool enabled)
 {
     *memory->out.axisZSelect   = enabled;
     *memory->out.axisZJogEnable = enabled;
-    *mHalCout << "hal   Z axis " << (enabled ? "active" : "disabled") << endl;
+    //*mHalCout << "hal   Z axis " << (enabled ? "active" : "disabled") << endl;
 }
 // ----------------------------------------------------------------------
 void Hal::setAxisAActive(bool enabled)
 {
     *memory->out.axisASelect   = enabled;
     *memory->out.axisAJogEnable = enabled;
-    *mHalCout << "hal   A axis " << (enabled ? "active" : "disabled") << endl;
+    //*mHalCout << "hal   A axis " << (enabled ? "active" : "disabled") << endl;
 }
 // ----------------------------------------------------------------------
 void Hal::setAxisBActive(bool enabled)
 {
     *memory->out.axisBSelect   = enabled;
     *memory->out.axisBJogEnable = enabled;
-    *mHalCout << "hal   B axis " << (enabled ? "active" : "disabled") << endl;
+    //*mHalCout << "hal   B axis " << (enabled ? "active" : "disabled") << endl;
 }
 // ----------------------------------------------------------------------
 void Hal::setAxisCActive(bool enabled)
 {
     *memory->out.axisCSelect   = enabled;
     *memory->out.axisCJogEnable = enabled;
-    *mHalCout << "hal   C axis " << (enabled ? "active" : "disabled") << endl;
+    //*mHalCout << "hal   C axis " << (enabled ? "active" : "disabled") << endl;
 }
 // ----------------------------------------------------------------------
 void Hal::setStepSize(const real_t stepSize)
@@ -695,7 +696,7 @@ void Hal::setStepSize(const real_t stepSize)
     *memory->out.axisAJogScale = stepSize;
     *memory->out.axisBJogScale = stepSize;
     *memory->out.axisCJogScale = stepSize;
-    *mHalCout << "hal   step size " << stepSize << endl;
+    //*mHalCout << "hal   step size " << stepSize << endl;
 }
 // ----------------------------------------------------------------------
 void Hal::setLead()
@@ -1014,6 +1015,54 @@ void Hal::setGotoG30(bool enabled)
     }
 }
 // ----------------------------------------------------------------------
+void Hal::setGotoG30X(bool enabled)
+{
+    if (requestMdiMode(enabled))
+    {
+        setPin(enabled, "goto-g30-x");
+    }
+    if (!enabled)
+    {
+        setPin(false, "goto-g30-x");
+    }
+}
+// ----------------------------------------------------------------------
+void Hal::setGotoG30Y(bool enabled)
+{
+    if (requestMdiMode(enabled))
+    {
+        setPin(enabled, "goto-g30-y");
+    }
+    if (!enabled)
+    {
+        setPin(false, "goto-g30-y");
+    }
+}
+// ----------------------------------------------------------------------
+void Hal::setGotoG30Z(bool enabled)
+{
+    if (requestMdiMode(enabled))
+    {
+        setPin(enabled, "goto-g30-z");
+    }
+    if (!enabled)
+    {
+        setPin(false, "goto-g30-z");
+    }
+}
+// ----------------------------------------------------------------------
+void Hal::setGotoG30A(bool enabled)
+{
+    if (requestMdiMode(enabled))
+    {
+        setPin(enabled, "goto-g30-a");
+    }
+    if (!enabled)
+    {
+        setPin(false, "goto-g30-a");
+    }
+}
+// ----------------------------------------------------------------------
 /**
  * Set current position as G30 (MDI G10 L20 P1 or equivalent).
  */
@@ -1293,6 +1342,7 @@ void Hal::setMacro10(bool enabled)
 void Hal::setMacro11(bool enabled)
 {
     setPin(enabled, "estop");
+    setPin(!enabled, "estop-not");
 }
 // ----------------------------------------------------------------------
 void Hal::setMacro12(bool enabled)
