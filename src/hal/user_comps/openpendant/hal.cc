@@ -700,6 +700,17 @@ void Hal::setStepSize(const real_t stepSize)
     //*mHalCout << "hal   step size " << stepSize << endl;
 }
 // ----------------------------------------------------------------------
+void Hal::setVelMode(bool enable)
+{
+    *memory->out.axisXSetVelocityMode = enable;
+    *memory->out.axisYSetVelocityMode = enable;
+    *memory->out.axisZSetVelocityMode = enable;
+    *memory->out.axisASetVelocityMode = enable;
+    *memory->out.axisBSetVelocityMode = enable;
+    *memory->out.axisCSetVelocityMode = enable;
+    *mHalCout << "hal   vel-mode " << (enable ? "ON" : "OFF") << endl;
+}
+// ----------------------------------------------------------------------
 void Hal::setLead()
 {
     std::ios init(NULL);

@@ -380,6 +380,11 @@ public:
     //! Sets the new feed rate. The step mode must be set accordingly.
     //! \param feedRate the new feed rate independent of step mode
     void setStepSize(const real_t feedRate);
+    //! Enables or disables jog velocity mode on all axes.
+    //! When enabled, jog-scale is interpreted as max jog speed (units/s)
+    //! instead of distance per count.
+    //! \param enable true for velocity mode, false for position mode
+    void setVelMode(bool enable);
     //! If lead is active.
     void setLead();
     //! Sets the hal state of the respective pin (reset). Usually called in case the reset

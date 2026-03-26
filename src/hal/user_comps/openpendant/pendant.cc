@@ -24,6 +24,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string.h>
+#include <cmath>
 
 // local includes
 #include "./hal.h"
@@ -205,11 +206,27 @@ void Pendant::processEvent(const pendant_rx_packet_t& rx)
         }
     }
 
-    // ── Step size from step_req ───────────────────────────────────────
+    // ── Step size / velocity mode from step_req ─────────────────────
     mCurrentStepIdx = rx.step_req;
-    if (rx.step_req < STEP_MULT_COUNT)
+    if (rx.step_req == 0)
     {
-        mHal.setStepSize(STEP_MULT[rx.step_req]);
+        // Velocity mode: jog-vel-mode=1, jog-scale = max jog speed.
+        // In velocity mode LinuxCNC jogs at jog-scale speed while
+        // jog-counts keep changing; speed is naturally proportional
+        // to wheel rotation rate.
+        mHal.setVelMode(true);
+        float maxVel = static_cast<float>(mHal.getFeedOverrideMaxVel());
+        if (maxVel < 0.1f) maxVel = 1.0f;
+        mHal.setStepSize(maxVel);
+    }
+    else
+    {
+        // Position mode: jog-vel-mode=0, jog-scale = step size in mm
+        mHal.setVelMode(false);
+        if (rx.step_req < STEP_MULT_COUNT)
+        {
+            mHal.setStepSize(STEP_MULT[rx.step_req]);
+        }
     }
 
     // ── Buttons: bitmask → HAL setters (rising-edge detection) ───────
