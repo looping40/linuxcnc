@@ -28,6 +28,7 @@
 // system includes
 #include <stdint.h>
 #include <ostream>
+#include <chrono>
 
 namespace OpenPendant {
 
@@ -91,6 +92,7 @@ private:
     uint8_t  mCurrentWheelMode{WHEEL_MODE_OFF};
     int32_t  mFeedOvrCounts{0};
     int32_t  mSpindleOvrCounts{0};
+    std::chrono::steady_clock::time_point mLastVelTime{};  // for vel-mode speed measurement
 
     std::ostream  mDevNull{nullptr};
     std::ostream* mPendantCout;

@@ -25,6 +25,7 @@
 #include <iomanip>
 #include <string.h>
 #include <cmath>
+#include <chrono>
 
 // local includes
 #include "./hal.h"
@@ -210,14 +211,27 @@ void Pendant::processEvent(const pendant_rx_packet_t& rx)
     mCurrentStepIdx = rx.step_req;
     if (rx.step_req == 0)
     {
-        // Velocity mode: jog-vel-mode=1, jog-scale = max jog speed.
-        // In velocity mode LinuxCNC jogs at jog-scale speed while
-        // jog-counts keep changing; speed is naturally proportional
-        // to wheel rotation rate.
+        // Velocity mode: jog-scale is proportional to wheel rotation speed.
+        // velocity (mm/s) = |delta_counts| / dt * VEL_SCALE
+        // Tune VEL_SCALE so that a comfortable turn speed gives a useful velocity.
+        // Default: 500 counts/s (fast turn) → 10 mm/s; adjust to taste.
+        static const float VEL_SCALE = 0.02f;  // mm per (count/s)
+
+        auto now = std::chrono::steady_clock::now();
+        float vel = 0.0f;
+        if (delta != 0)
+        {
+            float dt = std::chrono::duration<float>(now - mLastVelTime).count();
+            if (dt > 0.001f && dt < 0.5f)  // ignore first tick after pause
+            {
+                float maxVel = static_cast<float>(mHal.getFeedOverrideMaxVel());
+                if (maxVel < 0.1f) maxVel = 10.0f;
+                vel = std::min(std::abs(delta) / dt * VEL_SCALE, maxVel);
+            }
+        }
+        mLastVelTime = now;
         mHal.setVelMode(true);
-        float maxVel = static_cast<float>(mHal.getFeedOverrideMaxVel());
-        if (maxVel < 0.1f) maxVel = 1.0f;
-        mHal.setStepSize(maxVel);
+        mHal.setStepSize(vel);
     }
     else
     {
